@@ -1,0 +1,42 @@
+{
+  "name": "piepay-backend",
+  "version": "1.0.0",
+  "description": "PiePay Backend API for Flipkart offer processing and discount calculations",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "flipkart",
+    "offers",
+    "discounts",
+    "backend",
+    "api"
+  ],
+  "author": "PiePay Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "compression": "^1.7.4",
+    "express-rate-limit": "^6.8.1",
+    "joi": "^17.9.2",
+    "dotenv": "^16.3.1",
+    "winston": "^3.10.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.6.2",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
