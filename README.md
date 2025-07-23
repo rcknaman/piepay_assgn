@@ -1,217 +1,138 @@
-# PiePay Backend - Flipkart Offer Processing API
+# 🥧 PiePay Backend Assignment
 
-A high-performance Express.js backend service for processing Flipkart offers and calculating optimal discounts. Built with MySQL, designed to scale to 1000+ RPS.
+A production-grade backend service for e-commerce payment offers, implemented using **Express.js** and **MySQL**. This service ingests Flipkart-style offers, stores them in a relational DB, and exposes APIs to fetch and compute the best available discounts.
 
-## 🚀 Features
+---
 
-- **Offer Processing**: Parse and store Flipkart API responses with multiple offer formats
-- **Discount Calculation**: Advanced algorithm to find the highest applicable discount
-- **Multi-Bank Support**: AXIS, HDFC, ICICI, SBI, and other major banks
-- **Payment Flexibility**: Credit Cards, Debit Cards, EMI, Net Banking, UPI
-- **High Performance**: Optimized for 1000+ requests per second
-- **Rate Limiting**: Multiple tiers of protection against abuse
-- **Comprehensive Validation**: Input sanitization and validation
-- **Monitoring Ready**: Health checks, logging, and metrics
+## 🚀 Setup Instructions
 
-## 📋 API Endpoints
+### 1. Clone the Repository
 
-### Core Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/offer` | Process Flipkart offer API response |
-| GET | `/api/v1/highest-discount` | Calculate highest applicable discount |
-| GET | `/api/v1/offers/available` | Get available offers for a bank |
-| GET | `/api/v1/discount-summary` | Get discount options for all payment methods |
-
-### Monitoring Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Basic health check |
-| GET | `/health/detailed` | Detailed system health |
-| GET | `/health/ready` | Kubernetes readiness probe |
-| GET | `/health/live` | Kubernetes liveness probe |
-
-## 🛠 Tech Stack
-
-- **Runtime**: Node.js 16+
-- **Framework**: Express.js
-- **Database**: MySQL 8.0+
-- **Validation**: Joi
-- **Logging**: Winston
-- **Security**: Helmet, CORS, Rate Limiting
-
-## 🚦 Quick Start
-
-### Prerequisites
-
-- Node.js 16.0 or higher
-- MySQL 8.0 or higher
-- npm or yarn
-
-### Installation
-
-1. **Clone and install dependencies**
 ```bash
-git clone <repository-url>
-cd piepay-backend
+git clone https://github.com/rcknaman/piepay_assgn.git
+```
+
+### 2. Install Dependencies
+
+```bash
 npm install
 ```
 
-2. **Database Setup**
-```bash
-# Create database
-mysql -u root -p -e "CREATE DATABASE piepay;"
+### 3. Configure Environment Variables
 
-# Run table creation
+```bash
+cp .env.example .env
+```
+
+Edit `.env` to include your MySQL credentials and any other configuration.
+
+### 4. Run Database Migrations
+
+```bash
+mysql -u root -p -e "CREATE DATABASE piepay CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql -u root -p piepay < sql/create_tables.sql
 ```
 
-3. **Environment Configuration**
+### 5. Start the Server
+
+- For development:
+
 ```bash
-cp .env.example .env
-# Edit .env with your database credentials
+npm run dev
 ```
 
-4. **Start the server**
-```bash
-# Development
-npm run dev
+- For production:
 
-# Production
+```bash
 npm start
 ```
 
-## 📖 API Usage Examples
+### 6. API Access
 
-### Process Offers
+- Server will run on `http://localhost:3000` by default.
+- Use the included Postman collection or example payloads to test the endpoints.
 
-```bash
-curl -X POST http://localhost:3000/api/v1/offer \
-  -H "Content-Type: application/json" \
-  -d '{
-    "flipkartOfferApiResponse": {
-      "offers": [
-        {
-          "id": "AXIS_CC_10",
-          "title": "10% off with AXIS Credit Card",
-          "bankName": "AXIS",
-          "discountType": "percentage",
-          "discountValue": 10,
-          "minAmount": 1000,
-          "paymentInstruments": ["CREDIT"]
-        }
-      ]
-    }
-  }'
-```
+---
 
-### Calculate Highest Discount
+## 📝 Assumptions
 
-```bash
-curl "http://localhost:3000/api/v1/highest-discount?amountToPay=5000&bankName=AXIS&paymentInstrument=CREDIT"
-```
+- Incoming offer data strictly follows the structure defined in the assignment.
+- Offers are received under `flipkartOfferApiResponse.offers`.
+- Timestamps are in ISO 8601 format and stored as UTC in the database.
+- Only one offer can be applied per transaction for a specific payment method and bank.
+- Authentication is omitted to focus on core functionality.
+- API payloads must follow expected types strictly.
 
-### Get Available Offers
+---
 
-```bash
-curl "http://localhost:3000/api/v1/offers/available?bankName=HDFC&paymentInstrument=CREDIT"
-```
+## 🏗️ Design Choices
 
-## 🏗 Project Structure
+### Framework/Stack
 
-```
-piepay-backend/
-├── src/
-│   ├── app.js                 # Main application file
-│   ├── config/
-│   │   └── database.js        # Database configuration
-│   ├── controllers/
-│   │   └── offerController.js # API controllers
-│   ├── middleware/
-│   │   ├── errorHandler.js    # Error handling
-│   │   ├── rateLimiter.js     # Rate limiting
-│   │   └── validation.js      # Input validation
-│   ├── models/
-│   │   └── Offer.js          # Database models
-│   ├── routes/
-│   │   ├── offerRoutes.js    # API routes
-│   │   └── healthRoutes.js   # Health check routes
-│   ├── services/
-│   │   ├── offerService.js   # Business logic
-│   │   └── discountService.js # Discount calculations
-│   └── utils/
-│       └── logger.js         # Logging utility
-├── sql/
-│   └── create_tables.sql     # Database schema
-├── tests/                    # Test files
-├── logs/                     # Log files
-├── package.json
-├── .env.example
-└── README.md
-```
+- **Express.js** for API development.
+- **MySQL** for structured offer data with ACID compliance.
 
-## 🔧 Configuration
+### Database Schema
 
-### Environment Variables
+- Single normalized `offers` table.
+- Indexed fields: `bank_name`, `discount_type`, `is_active`, `valid_from`, `valid_till`.
+- `ENUM` for `discount_type`.
+- `JSON` column for `payment_instruments`.
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DB_HOST` | Database host | `localhost` |
-| `DB_PORT` | Database port | `3306` |
-| `DB_USER` | Database username | `root` |
-| `DB_PASSWORD` | Database password | `` |
-| `DB_NAME` | Database name | `piepay` |
-| `PORT` | Server port | `3000` |
-| `NODE_ENV` | Environment | `development` |
-| `LOG_LEVEL` | Logging level | `info` |
+### API and Validation
 
-### Rate Limiting
+- All payloads validated (e.g., using Joi).
+- Modular service layer for clean architecture and testability.
 
-- General API: 100 requests/15 minutes per IP
-- Offer creation: 20 requests/15 minutes per IP
-- Discount calculation: 60 requests/minute per IP
+### Error Handling
 
-## 🚀 Performance & Scaling
+- Centralized middleware for validation and application errors.
+- Database connection pooling with transaction support.
 
-### Current Optimizations
+---
 
-- **Connection Pooling**: Database connection pool with 10 connections
-- **Indexing**: Optimized database indexes for common queries
-- **Rate Limiting**: Multi-tier rate limiting to prevent abuse
-- **Input Validation**: Early validation to reduce processing overhead
-- **Error Handling**: Comprehensive error handling to prevent crashes
+## 🏎️ Scaling GET `/highest-discount` for 1,000 RPS
 
-### Scaling to 1000+ RPS
+- **Node.js Clustering**: Use all CPU cores and horizontally scale.
+- **Optimized Indexes**: Index all frequent filter fields.
+- **Query Optimization**: Select only required columns, filter in SQL.
+- **Read Replicas**: Use MySQL replicas for high-read traffic.
+- **Caching**: Redis for common queries and invalidation logic.
+- **Async Code**: Fully non-blocking database and service code.
 
-For production deployment at scale:
+---
 
-1. **Horizontal Scaling**
-   - Deploy multiple instances behind a load balancer
-   - Use PM2 or similar for process management
+## 🔧 If I Had More Time
 
-2. **Database Optimization**
-   - Implement read replicas for GET requests
-   - Add Redis caching for frequently accessed offers
-   - Optimize queries with proper indexing
+- Implement authentication and role-based access control.
+- Add integration and edge case test coverage.
+- Use Redis for advanced caching.
+- Dockerize the app.
 
-3. **Infrastructure**
-   - Use CDN for static content
-   - Implement health checks for auto-scaling
-   - Monitor with APM tools (New Relic, DataDog)
+---
 
-## 📊 Database Schema
-
-### Offers Table
+## 🗃️ Database Schema (SQL)
 
 ```sql
+-- PiePay Backend Database Schema
+-- MySQL/MariaDB compatible
+
+-- Create database (run separately if needed)
+-- CREATE DATABASE IF NOT EXISTS piepay CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- USE piepay;
+
+-- Drop tables if they exist
+DROP TABLE IF EXISTS api_usage;
+DROP TABLE IF EXISTS offers;
+
+-- Create offers table
 CREATE TABLE offers (
     id INT PRIMARY KEY AUTO_INCREMENT,
     offer_id VARCHAR(255) UNIQUE NOT NULL,
     title VARCHAR(500) NOT NULL,
+    description TEXT,
     bank_name VARCHAR(100) NOT NULL,
-    discount_type ENUM('percentage', 'flat', 'cashback'),
+    discount_type ENUM('percentage', 'flat', 'cashback') NOT NULL,
     discount_value DECIMAL(10,2) NOT NULL,
     min_amount DECIMAL(10,2) DEFAULT 0,
     max_discount DECIMAL(10,2),
@@ -220,98 +141,134 @@ CREATE TABLE offers (
     valid_till DATETIME,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX idx_bank_name (bank_name),
+    INDEX idx_active (is_active),
+    INDEX idx_valid_dates (valid_from, valid_till),
+    INDEX idx_discount_value (discount_value),
+    INDEX idx_min_amount (min_amount),
+    INDEX idx_created_at (created_at),
+
+    INDEX idx_bank_active (bank_name, is_active),
+    INDEX idx_bank_discount (bank_name, discount_value DESC),
+    INDEX idx_active_min_amount (is_active, min_amount)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create API usage table
+CREATE TABLE api_usage (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    endpoint VARCHAR(255) NOT NULL,
+    method VARCHAR(10) NOT NULL,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    response_status INT,
+    response_time_ms INT,
+    request_size INT,
+    response_size INT,
+    error_message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_endpoint_method (endpoint, method),
+    INDEX idx_created_at (created_at),
+    INDEX idx_response_status (response_status),
+    INDEX idx_ip_address (ip_address),
+
+    INDEX idx_endpoint_status (endpoint, response_status),
+    INDEX idx_date_endpoint (created_at, endpoint)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Sample data
+INSERT INTO offers (
+    offer_id, title, description, bank_name, discount_type, 
+    discount_value, min_amount, max_discount, payment_instruments,
+    valid_from, valid_till, is_active
+) VALUES 
+(
+    'AXIS_CC_10', 
+    '10% off with AXIS Credit Card', 
+    'Get 10% discount on purchases above ₹1000 using AXIS Bank Credit Card',
+    'AXIS', 
+    'percentage', 
+    10.00, 
+    1000.00, 
+    500.00, 
+    '["CREDIT"]',
+    NOW(), 
+    DATE_ADD(NOW(), INTERVAL 30 DAY), 
+    TRUE
+),
+(
+    'HDFC_FLAT_200', 
+    'Flat ₹200 off with HDFC', 
+    'Get flat ₹200 discount on purchases above ₹2000 using HDFC Bank cards',
+    'HDFC', 
+    'flat', 
+    200.00, 
+    2000.00, 
+    200.00, 
+    '["CREDIT", "DEBIT"]',
+    NOW(), 
+    DATE_ADD(NOW(), INTERVAL 45 DAY), 
+    TRUE
+),
+(
+    'ICICI_EMI_15', 
+    '15% off with ICICI EMI', 
+    'Get 15% discount on EMI transactions above ₹5000 using ICICI Bank',
+    'ICICI', 
+    'percentage', 
+    15.00, 
+    5000.00, 
+    1000.00, 
+    '["EMI_OPTIONS"]',
+    NOW(), 
+    DATE_ADD(NOW(), INTERVAL 60 DAY), 
+    TRUE
+),
+(
+    'SBI_CASHBACK_5', 
+    '5% Cashback with SBI', 
+    'Get 5% cashback on all purchases using SBI cards',
+    'SBI', 
+    'cashback', 
+    5.00, 
+    500.00, 
+    300.00, 
+    '["CREDIT", "DEBIT", "NET_BANKING"]',
+    NOW(), 
+    DATE_ADD(NOW(), INTERVAL 90 DAY), 
+    TRUE
 );
+
+-- View for active offers
+CREATE VIEW active_offers_view AS
+SELECT 
+    o.*,
+    CASE 
+        WHEN o.discount_type = 'percentage' THEN CONCAT(o.discount_value, '% off')
+        WHEN o.discount_type = 'flat' THEN CONCAT('₹', o.discount_value, ' off')
+        WHEN o.discount_type = 'cashback' THEN CONCAT(o.discount_value, '% cashback')
+    END as discount_display,
+    DATEDIFF(o.valid_till, NOW()) as days_remaining
+FROM offers o
+WHERE o.is_active = TRUE 
+AND (o.valid_till IS NULL OR o.valid_till > NOW());
+
+-- Stored procedure to clean logs
+DELIMITER //
+CREATE PROCEDURE CleanOldApiLogs(IN days_to_keep INT)
+BEGIN
+    DELETE FROM api_usage 
+    WHERE created_at < DATE_SUB(NOW(), INTERVAL days_to_keep DAY);
+
+    SELECT ROW_COUNT() as deleted_rows;
+END //
+DELIMITER ;
+
+-- Verify setup
+SHOW TABLES;
+DESCRIBE offers;
+DESCRIBE api_usage;
+SELECT * FROM active_offers_view LIMIT 5;
 ```
-
-## 🧪 Testing
-
-```bash
-# Run tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run tests in watch mode
-npm run test:watch
-```
-
-## 📝 API Response Format
-
-### Success Response
-```json
-{
-  "status": "success",
-  "data": {
-    "highestDiscount": 500,
-    "finalAmount": 4500,
-    "applicableOffer": {
-      "offerId": "AXIS_CC_10",
-      "title": "10% off with AXIS Credit Card",
-      "bankName": "AXIS"
-    }
-  }
-}
-```
-
-### Error Response
-```json
-{
-  "status": "error",
-  "message": "Validation failed",
-  "errors": ["Amount to pay must be greater than 0"]
-}
-```
-
-## 🔐 Security Features
-
-- **Input Sanitization**: XSS protection and input cleaning
-- **Rate Limiting**: Multiple tiers of request limiting
-- **CORS Protection**: Configurable cross-origin policies
-- **Helmet Security**: Security headers automatically applied
-- **Validation**: Comprehensive input validation with Joi
-
-## 🚨 Error Handling
-
-The API implements comprehensive error handling:
-
-- **Validation Errors**: 400 with detailed field errors
-- **Not Found**: 404 for missing resources
-- **Rate Limiting**: 429 with retry information
-- **Server Errors**: 500 with minimal exposure in production
-
-## 📈 Monitoring & Logging
-
-- **Winston Logging**: Structured logging with file rotation
-- **Health Checks**: Multiple health check endpoints
-- **Request Logging**: Morgan HTTP request logging
-- **Error Tracking**: Comprehensive error logging and tracking
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙋‍♂️ Support
-
-For support and questions:
-
-- Create an issue in the repository
-- Check the health endpoints for system status
-- Review logs in the `logs/` directory
-
-## 🔄 Version History
-
-- **v1.0.0**: Initial release with core functionality
-  - Offer processing and storage
-  - Discount calculation engine
-  - Multi-bank and payment instrument support
-  - Rate limiting and security features

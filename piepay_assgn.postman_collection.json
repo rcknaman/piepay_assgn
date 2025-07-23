@@ -1,0 +1,172 @@
+{
+	"info": {
+		"_postman_id": "55646ee8-b028-42e2-9522-4e35bcc4f6d2",
+		"name": "piepay_assgn",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28204646"
+	},
+	"item": [
+		{
+			"name": "detail health check",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/health/detailed",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"health",
+						"detailed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "offer",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"flipkartOfferApiResponse\": {\n    \"offers\": [\n      {\n        \"id\": \"AXIS_CC_10\",\n        \"title\": \"10% off with AXIS Credit Card\",\n        \"description\": \"Get 10% instant discount using Axis Bank Credit Card. Max ₹1,000 off.\",\n        \"bankName\": \"AXIS\",\n        \"discountType\": \"percentage\",\n        \"discountValue\": 10,\n        \"minAmount\": 2000,\n        \"maxDiscount\": 1000,\n        \"paymentInstruments\": [\"CREDIT\"],\n        \"isActive\": true,\n        \"validFrom\": \"2025-07-01T00:00:00Z\",\n        \"validTill\": \"2025-07-31T23:59:59Z\"\n      },\n      {\n        \"id\": \"HDFC_EMI_500\",\n        \"title\": \"Flat ₹500 off with HDFC EMI\",\n        \"description\": \"Get flat ₹500 discount on HDFC EMI payments. Min purchase ₹5,000.\",\n        \"bankName\": \"HDFC\",\n        \"discountType\": \"flat\",\n        \"discountValue\": 500,\n        \"minAmount\": 5000,\n        \"maxDiscount\": 500,\n        \"paymentInstruments\": [\"EMI\"],\n        \"isActive\": true,\n        \"validFrom\": \"2025-07-01T00:00:00Z\",\n        \"validTill\": \"2025-07-20T23:59:59Z\"\n      }\n    ]\n  }\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/api/v1/offer",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"offer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "highest discount",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/api/v1/highest-discount?amountToPay=5000&bankName=AXIS&paymentInstrument=CREDIT",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"highest-discount"
+					],
+					"query": [
+						{
+							"key": "amountToPay",
+							"value": "5000"
+						},
+						{
+							"key": "bankName",
+							"value": "AXIS"
+						},
+						{
+							"key": "paymentInstrument",
+							"value": "CREDIT"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "discount summary",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/api/v1/discount-summary?amountToPay=5000&bankName=AXIS&paymentInstrument=CREDIT",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"discount-summary"
+					],
+					"query": [
+						{
+							"key": "amountToPay",
+							"value": "5000"
+						},
+						{
+							"key": "bankName",
+							"value": "AXIS"
+						},
+						{
+							"key": "paymentInstrument",
+							"value": "CREDIT"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "available options",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/api/v1/offers/available?paymentInstrument=CREDIT&bankName=AXIS",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"offers",
+						"available"
+					],
+					"query": [
+						{
+							"key": "paymentInstrument",
+							"value": "CREDIT"
+						},
+						{
+							"key": "bankName",
+							"value": "AXIS"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
